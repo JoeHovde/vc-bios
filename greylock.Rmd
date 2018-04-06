@@ -1,0 +1,41 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+Will probably have to use Selenium for this
+
+```{r}
+url <- "https://www.greylock.com/team/"
+```
+
+```{r}
+ppl <- get_people(url, "h5")
+
+ppl <- tolower(ppl)
+
+ppl <- gsub(" ", "-", ppl)
+
+url_list <- paste0(url, "#", ppl)
+
+url_list <- unique(url_list)
+
+greylock <- data_frame()
+for(i in 1:length(url_list)){
+  current <- html_session(url_list[i]) %>% 
+    html_nodes("p") %>% 
+    html_text() %>% 
+    data_frame() %>% 
+    mutate(name = url_list[i], firm = "Greylock Partners")
+  greylock <- rbind(greylock, current)
+}
+
+
+
+html_session(url_list[3]) %>%
+  html_nodes(".content-block p") %>% 
+  html_text()
+```
+
+# going to make a list of urls
+

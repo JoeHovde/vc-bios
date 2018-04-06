@@ -1,0 +1,37 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+url <- "https://www.menlovc.com/team/"
+
+ppl <- get_people(url, ".team__name")
+
+```
+
+```{r}
+get_people(url, ".team__meta.href")
+
+ppl <- html_session(url) %>% 
+  html_nodes(".team__item > .cover") %>% 
+  html_attrs()
+
+menlo <- data_frame()
+
+for(i in 1:length(ppl)){
+  current <- html_session(ppl[[i]][1]) %>% 
+    html_nodes(".content.teamSingle__content") %>% 
+    html_text() %>% 
+    data_frame() %>% 
+    mutate(name = NA, firm = "Menlo Ventures")
+  menlo <- rbind(menlo, current)
+}
+
+names(menlo) <- c("text", "name", "firm")
+
+menlo$name <- substr(menlo$text, 1, (regexpr(" ", menlo$text)-1))
+
+write_csv(menlo, "menlo.csv")
+```
+

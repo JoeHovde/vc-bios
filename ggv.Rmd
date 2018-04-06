@@ -1,0 +1,48 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+GGV capital
+```{r}
+url <- "https://www.ggvc.com/team"
+```
+
+```{r}
+ppl <- get_people(url, ".views-field.views-field-title")
+
+ppl <- trimws(tolower(ppl))
+
+ppl <- gsub(" ", "-", ppl)
+
+ppl <- ppl[-8]
+
+urls <- paste0(url, "/", ppl)
+
+html_session(urls[5]) %>% 
+  html_nodes(".field-item.even p") %>% 
+  html_text()
+
+ggv2 <- data_frame()
+for(i in urls){
+  ggv2 <- rbind(ggv, html_session(i) %>% 
+                 html_nodes(".field-item.even p") %>%
+                 html_text() %>% 
+                 data_frame() %>% 
+                 mutate(name = i, firm = "GGV Capital"))
+  message(i)
+}
+
+ggv <- unique(rbind(ggv, ggv2))
+
+names(ggv) <- c("text", "name", "firm")
+
+ggv$name <- gsub(url, "", ggv$name)
+
+ggv$name <- gsub("-", " ", ggv$name)
+
+ggv$name <- gsub("/", "", ggv$name)
+
+write_csv(ggv, "ggv.csv")
+```
+

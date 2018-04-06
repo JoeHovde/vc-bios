@@ -1,0 +1,26 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+url <- "https://www.khoslaventures.com/team"
+```
+
+```{r}
+ppl <- get_people(url, "#team_navigation a")
+
+html_session(url) %>% 
+  follow_link(ppl[3]) %>% 
+  html_nodes("#bio p") %>% 
+  html_text()
+
+khosla <- data_frame()
+
+for(i in 1:length(ppl)){
+  khosla <- rbind(khosla, get_bios(url, "#bio p", ppl, "Khosla Ventures"))
+}
+
+write_csv(khosla, "khosla.csv")
+```
+

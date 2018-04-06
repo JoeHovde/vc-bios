@@ -1,0 +1,20 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+url <- "http://generalcatalyst.com/team/?job=investment-professionals"
+
+ppl <- get_people(url, ".eg-team-no-hover-element-3")
+
+general_catalyst <- data_frame()
+for(i in 1:length(ppl)){
+  general_catalyst <- rbind(general_catalyst,get_bios(url, ".x-2-3 p", ppl, "General Catalyst"))
+}
+
+names(general_catalyst) <- c("text", "name", "firm")
+
+write_csv(general_catalyst, "general_catalyst.csv")
+```
+

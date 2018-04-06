@@ -1,0 +1,55 @@
+---
+title: "a16z"
+output: html_notebook
+---
+
+Scraping VC bios from a16z's website.
+
+```{r}
+library(rvest)
+library(tidyverse)
+library(tidytext)
+```
+
+```{r}
+base_url <- "https://a16z.com/about/team/"
+
+```
+
+Getting all the name links
+```{r}
+ppl <- html_session(base_url) %>% 
+  html_nodes("span") %>% 
+  html_text()
+
+ppl <- ppl[5:length(ppl)]
+
+names <- data_frame(ppl)
+```
+
+
+
+```{r}
+get_bio <- function(url, link_name){
+  text <- html_session(url) %>%
+    follow_link(link_name) %>% 
+    html_nodes("p") %>% 
+    html_text()
+  current_person <- data_frame(text) %>% 
+    mutate(name = link_name)
+}
+
+# loop
+
+a16z <- data_frame()
+for(i in 1:nrow(names)){
+  current <- get_bio(base_url, names$ppl[i])
+  a16z <- rbind(a16z, current)
+}
+
+a16z <- a16z %>% 
+  mutate(firm = "Andreessen Horowitz")
+
+write_csv(a16z, "a16z.csv")
+```
+

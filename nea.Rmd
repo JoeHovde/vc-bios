@@ -1,0 +1,43 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+NEA
+
+```{r}
+url <- "http://www.nea.com/team"
+```
+
+```{r}
+get_people <- function(url, nodestring){
+  html_session(url) %>% 
+    html_nodes(nodestring) %>% 
+    html_text()
+}
+
+ppl <- get_people(url, "strong")
+
+get_bios <- function(url, nodestring, namelist, company){
+  html_session(url) %>% 
+      follow_link(namelist[i]) %>% 
+      html_nodes(nodestring) %>% 
+      html_text() %>% 
+      data_frame() %>% 
+      mutate(name = namelist[i], firm = company)
+}
+```
+
+Loop
+
+```{r}
+nea <- data_frame()
+for(i in 1:length(ppl)){
+  current <- get_bios(url, "p", ppl, "NEA")
+  nea <- rbind(nea, current)
+}
+
+names(nea) <- c("text", "name", "firm")
+
+write_csv(nea, "nea.csv")
+```
+

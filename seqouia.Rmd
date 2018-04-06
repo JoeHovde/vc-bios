@@ -1,0 +1,93 @@
+---
+title: "VC bios: Sequoia"
+output: html_notebook
+---
+
+Scraping VC bios from Sequoia Capital's website.
+
+```{r}
+library(rvest)
+library(tidyverse)
+library(tidytext)
+```
+
+```{r}
+base_url <- "https://www.sequoiacap.com/people/"
+
+growth_url <- "https://www.sequoiacap.com/people/growth/"
+
+```
+
+#### Scraping Early Stage team
+
+```{r}
+early_ppl <- html_session(base_url) %>% 
+  html_nodes(".-white") %>% 
+  html_text() %>% 
+  data_frame()
+
+names(early_ppl) <- c("name")
+early_ppl <- early_ppl[3:nrow(early_ppl),]
+
+# function for following link and pulling people's bio
+
+get_bio <- function(url, person_link){
+  html_session(url) %>% 
+    follow_link(person_link) %>% 
+    html_nodes("#js-person-hish > p") %>% 
+    html_text() %>% 
+    data_frame()
+}
+
+
+
+# looping through names, getting all the bios
+seq_early <- data_frame()
+for(i in 1:nrow(early_ppl)){
+  current_person <- get_bio(base_url, early_ppl$name[i])
+  current_person <- current_person %>% 
+    mutate(name = early_ppl$name[i])
+  seq_early <- rbind(seq_early, current_person)
+}
+
+names(seq_early) <- c("text", "name")
+```
+
+#### Scraping Growth stage team
+
+```{r}
+growth_ppl <- html_session(growth_url) %>% 
+  html_nodes(".-white") %>% 
+  html_text() %>% 
+  data_frame()
+
+names(growth_ppl) <- c("name")
+growth_ppl <- growth_ppl[3:nrow(growth_ppl),]
+
+# looping through all of the growth people
+
+seq_growth <- data_frame()
+for(i in 1:nrow(growth_ppl)){
+  current_person <- get_bio(growth_url, growth_ppl$name[i])
+  current_person <- current_person %>% 
+    mutate(name = growth_ppl$name[i])
+  seq_growth <- rbind(seq_growth, current_person)
+}
+
+names(seq_growth) <- c("text", "name")
+```
+
+#### Combining both teams
+
+```{r}
+sequoia <- rbind(seq_early, seq_growth)
+
+# remove duplicates
+sequoia <- unique(sequoia)
+
+sequoia <- sequoia %>% 
+  mutate(firm = "Sequoia Capital")
+
+write_csv(sequoia, "sequoia.csv")
+```
+

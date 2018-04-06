@@ -1,0 +1,20 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+url <- "https://www.indexventures.com/team"
+
+ppl <- get_people(url, ".field-content span")
+
+index <- data_frame()
+for(i in 1:length(ppl)){
+  index <- rbind(index, get_bios(url, ".field-item.even", ppl, "Index Ventures"))
+}
+
+names(index) <- c("index", "name", "firm")
+
+write_csv(index, "index_ventures.csv")
+```
+

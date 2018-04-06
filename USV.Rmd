@@ -1,0 +1,22 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+USV
+
+```{r}
+url <- "https://www.usv.com/about"
+
+ppl <- get_people(url, "h4 a")
+
+usv <- data_frame()
+
+for(i in 1:length(ppl)){
+usv <- rbind(usv, get_bios(url, ".person-bio", ppl, "Union Square Ventures"))
+}
+
+names(usv) <- c("text", "name", "firm")
+
+write_csv(usv, "usv.csv")
+```
+

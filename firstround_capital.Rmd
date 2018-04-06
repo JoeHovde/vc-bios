@@ -1,0 +1,45 @@
+---
+title: "First Round Capital"
+output: html_notebook
+---
+
+```{r}
+library(rvest)
+library(tidyverse)
+library(tidytext)
+```
+
+
+First round capital bios
+
+```{r}
+url <- "http://firstround.com/team/"
+```
+
+```{r}
+names <- html_session(url) %>% 
+  html_nodes(".team-image-text") %>% 
+  html_text()
+
+names <- names[1:26]
+
+get_bios <- function(url, names){
+  html_session(url) %>% 
+    follow_link(names) %>% 
+    html_nodes("#story p , span") %>% 
+    html_text() %>% 
+    data_frame() %>% 
+    mutate(name = names, firm = "First Round Capital")
+}
+
+firstround <- data_frame()
+for(i in 1:length(names)){
+  current <- get_bios(url, names[i])
+  firstround <- rbind(firstround, current)
+}
+
+names(firstround) <- c("text", "name", "firm")
+
+write_csv(firstround, "firstround.csv")
+```
+

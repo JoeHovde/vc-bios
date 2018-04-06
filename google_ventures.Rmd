@@ -1,0 +1,36 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+url <- "https://www.gv.com/team"
+
+urls <- make_urls(url, ".bioCard-name")
+urls <- urls[-14]
+urls <- urls[-73]
+
+html_session(urls[4]) %>% 
+  html_nodes(".type-showLinks p") %>% 
+  html_text()
+
+google_ventures <- data_frame()
+for(i in urls){
+  current <- html_session(i) %>% 
+    html_nodes(".type-showLinks p") %>% 
+    html_text() %>% 
+    data_frame() %>% 
+    mutate(name = i, firm = "Google Ventures")
+  message(i)
+  google_ventures <- rbind(google_ventures, current)
+}
+
+names(google_ventures) <- colnames
+
+google_ventures$name <- gsub(url, "", google_ventures$name)
+google_ventures$name <- gsub("-", " ", google_ventures$name)
+google_ventures$name <- gsub("/", "", google_ventures$name)
+
+write_csv(google_ventures, "google_ventures.csv")
+```
+

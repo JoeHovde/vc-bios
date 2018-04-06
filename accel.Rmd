@@ -1,0 +1,31 @@
+---
+title: "Accel"
+output: html_notebook
+---
+```{r}
+url <- "https://www.accel.com/team"
+```
+
+
+```{r}
+get_people <- function(url, nodestring){
+  html_session(url) %>% 
+    html_nodes(nodestring) %>% 
+    html_text()
+}
+
+ppl <- get_people(url, "h4")
+
+accel <- data_frame()
+for(i in 1:length(ppl)){
+  current <- html_session(url) %>% 
+    follow_link(ppl[i]) %>% 
+    html_nodes("p") %>% 
+    html_text() %>% 
+    data_frame() %>% 
+    mutate(name = ppl[i], firm = "Accel Venture Partners")
+  accel <- rbind(accel, current)
+}
+
+write_csv(accel, "accel.csv")
+```

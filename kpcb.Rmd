@@ -1,0 +1,56 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+l_url <- "http://www.kpcb.com/teams/leadership"
+i_url <- "http://www.kpcb.com/teams/investment-professionals"
+```
+
+
+```{r}
+get_people <- function(url, nodestring){
+  html_session(url) %>% 
+    html_nodes(nodestring) %>% 
+    html_text()
+}
+
+ldrs <- get_people(l_url, ".normal")
+
+kpl <- data_frame()
+for(i in 1:length(ldrs)){
+  current <- html_session(l_url) %>% 
+    follow_link(ldrs[i]) %>% 
+    html_nodes("p") %>% 
+    html_text() %>% 
+    data_frame() %>% 
+    mutate(name = ldrs[i], firm = "KPCB")
+  kpl <- rbind(kpl, current)
+}
+```
+Investment professionals
+
+```{r}
+inv <- get_people(i_url, ".normal")
+kpi <- data_frame()
+for(i in 1:length(inv)){
+  current <- html_session(i_url) %>% 
+    follow_link(inv[i]) %>% 
+    html_nodes("p") %>% 
+    html_text() %>% 
+    data_frame() %>% 
+    mutate(name = inv[i], firm = "KPCB")
+  kpi <- rbind(kpi, current)
+}
+```
+Binding leadership and investment together
+
+```{r}
+kpcb <- rbind(kpl, kpi)
+
+names(kpcb) <- c("text", "name", "firm")
+
+write_csv(kpcb, "kpcb.csv")
+```
+

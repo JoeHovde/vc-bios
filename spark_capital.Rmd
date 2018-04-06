@@ -1,0 +1,22 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+url <- "http://sparkcapital.com/team/"
+```
+
+```{r}
+ppl <- get_people(url, ".team-members h3")
+
+spark <- data_frame()
+for(i in 1:length(ppl)){
+  current <- get_bios(url, ".hidden-xs p", ppl, "Spark Capital")
+  spark <- rbind(spark, current)
+}
+
+names(spark) <- c("text", "name", "firm")
+
+write_csv(spark, "spark.csv")
+```
+

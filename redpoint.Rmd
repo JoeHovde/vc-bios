@@ -1,0 +1,28 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+url <- "https://www.redpoint.com/people/"
+
+ppl <- get_people(url, ".grid-partner .f-ss a")
+
+redpoint <- data_frame()
+for(i in 1:length(ppl)){
+  redpoint <- rbind(redpoint, get_bios(url, "p", ppl, "Redpoint"))
+}
+
+names(redpoint) <- c("text", "name", "firm")
+
+```
+
+Cleaning
+```{r}
+redpoint <- redpoint[!grepl("Sorry, registrations", redpoint$text), ]
+
+redpoint <- redpoint[!grepl("We'll get back to you", redpoint$text), ]
+
+write_csv(redpoint, "redpoint.csv")
+```
+

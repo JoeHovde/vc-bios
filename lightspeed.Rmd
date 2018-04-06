@@ -1,0 +1,47 @@
+---
+title: "Benchmark"
+output: html_notebook
+---
+
+Benchmark capital
+
+```{r}
+library(rvest)
+library(tidyverse)
+library(tidytext)
+```
+
+```{r}
+base_url <- "http://lsvp.com/team/"
+
+```
+
+Getting all the name links
+```{r}
+ppl <- html_session(base_url) %>% 
+  html_nodes("h4") %>% 
+  html_text()
+
+get_bio <- function(url, name){
+  html_session(url) %>% 
+    follow_link(name) %>% 
+    html_nodes("p") %>% 
+    html_text() %>% 
+    data_frame()
+}
+
+lightspeed <- data_frame()
+for(i in 2:(length(ppl)-1)){
+  current <- get_bio(base_url, ppl[i])
+  current <- current[1:(nrow(current)-3),] %>% 
+    mutate(name = ppl[i], firm = "Lightspeed Venture Partners")
+  message(i)
+  lightspeed <- rbind(lightspeed, current)
+}
+
+
+names(lightspeed) <- c("text", "name", "firm")
+
+write_csv(lightspeed, "lightspeed.csv")
+```
+
